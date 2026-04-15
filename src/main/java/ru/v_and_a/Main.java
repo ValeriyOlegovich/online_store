@@ -1,8 +1,12 @@
 package ru.v_and_a;
 
-//TIP Для <b>запуска</b> кода нажмите <shortcut actionId="Run"/> или
-// щелкните значок <icon src="AllIcons.Actions.Execute"/> в боковой области.
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
 public class Main {
     public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
     }
 }
