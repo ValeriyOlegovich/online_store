@@ -7,11 +7,11 @@
     <groupId>ru.v_and_a</groupId>
     <artifactId>online_store</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <packaging>pom</packaging>
+    <modules>
+        <module>delivery-service</module>
+        <module>order-service</module>
+        <module>payment-service</module>
+    </modules>
 
 </project>
