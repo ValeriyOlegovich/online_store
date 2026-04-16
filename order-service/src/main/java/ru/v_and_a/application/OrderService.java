@@ -1,54 +1,56 @@
 package ru.v_and_a.application;
 
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.v_and_a.domain.model.Order;
+import ru.v_and_a.web.dto.OrderRequest;
 
-import java.util.List;
-
-@Service
 public interface OrderService {
+
     /**
-     * Создаёт новый заказ.
+     * Создаёт новый заказ на основе данных из запроса.
      *
+     * @param request данные заказа
      * @return UUID созданного заказа
      */
-    String createOrder();
+    String createOrder(OrderRequest request);
 
     /**
-     * Возвращает статус заказа по его UUID.
+     * Возвращает заказ по его UUID.
      *
      * @param uuid идентификатор заказа
-     * @return строковое представление статуса заказа
+     * @return сущность заказа
      */
-    String getStatusByUuid(String uuid);
+    Order getByUuid(String uuid);
 
     /**
-     * Возвращает список всех заказов.
+     * Возвращает страницу заказов (с пагинацией).
      *
-     * @return список заказов
+     * @param pageable параметры пагинации (страница, размер, сортировка)
+     * @return страница с заказами в виде DTO
      */
-    List<Order> getAllOrders();
+    Page<Order> getAll(Pageable pageable);
 
     /**
-     * Полностью обновляет заказ по его UUID.
+     * Полностью обновляет заказ.
      *
      * @param uuid идентификатор заказа
-     * @param updatedOrder обновлённые данные заказа
+     * @param request новые данные заказа
      * @return обновлённый заказ
      */
-    Order updateOrder(String uuid, Order updatedOrder);
+    Order updateOrder(String uuid, OrderRequest request);
 
     /**
      * Частично обновляет заказ (например, только статус).
      *
      * @param uuid идентификатор заказа
-     * @param patch частичные данные для обновления
+     * @param request поля для обновления
      * @return обновлённый заказ
      */
-    Order partialUpdateOrder(String uuid, Order patch);
+    Order partialUpdateOrder(String uuid, OrderRequest request);
 
     /**
-     * Удаляет заказ по его UUID.
+     * Удаляет заказ по UUID.
      *
      * @param uuid идентификатор заказа
      */

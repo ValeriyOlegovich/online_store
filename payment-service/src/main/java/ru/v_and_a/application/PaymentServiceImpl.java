@@ -1,6 +1,7 @@
 package ru.v_and_a.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.v_and_a.domain.model.Payment;
 import ru.v_and_a.domain.model.PaymentStatus;
@@ -30,8 +31,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<PaymentResponse> getAllPayments() {
-        return paymentRepository.findAll().stream()
+    public List<PaymentResponse> getAll(Pageable pageable) {
+        return paymentRepository.findAll(pageable).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

@@ -4,6 +4,8 @@ import java.util.List;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.v_and_a.application.command.DeliveryCommand;
@@ -38,8 +40,8 @@ public class DeliveryApplicationService {
     }
 
     @CircuitBreaker(name = "deliveryServiceCircuitBreaker")
-    public List<DeliveryDetails> getAll() {
-        return deliveryRepository.findAll()
+    public List<DeliveryDetails> getAll(Pageable pageable) {
+        return deliveryRepository.findAll(pageable)
                 .stream()
                 .map(this::toDeliveryDetails)
                 .toList();
