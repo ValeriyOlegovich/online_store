@@ -1,4 +1,4 @@
-package ru.v_and_a.web.dto;
+package ru.v_and_a.domain.model;
 
 import lombok.Data;
 
