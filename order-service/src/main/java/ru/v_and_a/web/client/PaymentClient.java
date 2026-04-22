@@ -11,7 +11,10 @@ public interface PaymentClient {
      * Создаёт новый платёж.
      */
     @PostMapping("/api/v1/payments")
-    PaymentResponse createPayment(@RequestBody PaymentRequest request);
+    PaymentResponse createPayment(
+            @RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader,
+            @RequestBody PaymentRequest request
+    );
 
     /**
      * Получает платёж по ID.

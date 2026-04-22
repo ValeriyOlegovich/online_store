@@ -1,4 +1,4 @@
-package ru.v_and_a.web;
+package ru.v_and_a.web.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +20,9 @@ public class PaymentController implements PaymentApi {
      * Создаёт новый платёж
      */
     @PostMapping
-    public PaymentResponse create(@RequestBody PaymentRequest paymentRequest) {
+    public PaymentResponse create(
+            @RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader,
+            @RequestBody PaymentRequest paymentRequest) {
         return paymentService.createPayment(paymentRequest);
     }
 
