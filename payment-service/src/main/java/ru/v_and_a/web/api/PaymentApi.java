@@ -30,7 +30,8 @@ public interface PaymentApi {
             }
     )
     @PostMapping
-    PaymentResponse create(@RequestBody PaymentRequest paymentRequest);
+    PaymentResponse create(@RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader,
+                           @RequestBody PaymentRequest paymentRequest);
 
     @Operation(
             summary = "Получить все платежи",

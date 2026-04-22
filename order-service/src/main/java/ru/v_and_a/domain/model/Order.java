@@ -21,7 +21,7 @@ public class Order {
     private String uuid;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    private String customerId;
+    private Long userId;
     private String paymentMethod;
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;
