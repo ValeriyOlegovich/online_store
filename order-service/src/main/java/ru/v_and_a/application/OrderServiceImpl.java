@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import ru.v_and_a.domain.model.Order;
 import ru.v_and_a.domain.model.OrderStatus;
 import ru.v_and_a.domain.repository.OrderRepository;
+import ru.v_and_a.web.client.PaymentClient;
 import ru.v_and_a.web.dto.OrderRequest;
+import ru.v_and_a.web.dto.PaymentRequest;
 
 import java.util.UUID;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final PaymentClient paymentClient;
 
     @Override
     public String createOrder(OrderRequest request) {
@@ -23,8 +26,15 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order();
         order.setUuid(uuid);
         order.setStatus(OrderStatus.CREATED);
+        order.setTotalAmount(request.getTotalAmount());
 
         orderRepository.save(order);
+        var paymentRequest = new PaymentRequest();
+        paymentRequest.setOrderId(order.getUuid());
+        paymentRequest.setAmount(order.getTotalAmount());
+        paymentRequest.setCurrency("RUB");
+        paymentClient.createPayment(paymentRequest);
+
         return uuid;
     }
 

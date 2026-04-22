@@ -5,78 +5,48 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 import ru.v_and_a.application.OrderService;
 import ru.v_and_a.domain.model.Order;
-import ru.v_and_a.web.dto.OrderResponse;
+import ru.v_and_a.web.api.OrderApi;
 import ru.v_and_a.web.dto.OrderRequest;
+import ru.v_and_a.web.dto.OrderResponse;
 
 @RestController
-@RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
-public class OrderController {
+public class OrderController implements OrderApi {
     private static final Logger LOGGER = LogManager.getLogger(OrderController.class);
 
     private final OrderService orderService;
 
-    /**
-     * Создаёт новый заказ
-     */
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public String createOrder(@RequestBody OrderRequest request) {
-        LOGGER.info("Вызов OrderController.createOrder");
-        String orderId = orderService.createOrder(request);
-        return orderId;
+    @Override
+    public String createOrder(OrderRequest request) {
+        return orderService.createOrder(request);
     }
 
-    /**
-     * Возвращает заказ по UUID
-     */
-    @GetMapping("/{uuid}")
-    public OrderResponse getByUuid(@PathVariable String uuid) {
-        LOGGER.info("Вызов OrderController.getByUuid для заказа: {}", uuid);
-        Order order = orderService.getByUuid(uuid);
-        return mapToResponse(order);
-    }
-
-    /**
-     * Возвращает список всех заказов (с пагинацией)
-     */
-    @GetMapping
+    @Override
     public Page<OrderResponse> getAll(Pageable pageable) {
         LOGGER.info("Вызов OrderController.getAll");
         return orderService.getAll(pageable).map(this::mapToResponse);
     }
 
-    /**
-     * Полное обновление заказа
-     */
-    @PutMapping("/{uuid}")
-    public OrderResponse updateOrder(@PathVariable String uuid, @RequestBody OrderRequest request) {
-        LOGGER.info("Обновление заказа с UUID: {}", uuid);
-        Order updatedOrder = orderService.updateOrder(uuid, request);
-        return mapToResponse(updatedOrder);
+    @Override
+    public OrderResponse getByUuid(String uuid) {
+        return mapToResponse(orderService.getByUuid(uuid));
     }
 
-    /**
-     * Частичное обновление заказа
-     */
-    @PatchMapping("/{uuid}")
-    public OrderResponse partialUpdateOrder(@PathVariable String uuid, @RequestBody OrderRequest patch) {
-        LOGGER.info("Частичное обновление заказа: {}", uuid);
-        Order patchedOrder = orderService.partialUpdateOrder(uuid, patch);
-        return mapToResponse(patchedOrder);
+    @Override
+    public OrderResponse updateOrder(String uuid, OrderRequest request) {
+        return mapToResponse(orderService.updateOrder(uuid, request));
     }
 
-    /**
-     * Удаляет заказ
-     */
-    @DeleteMapping("/{uuid}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOrder(@PathVariable String uuid) {
-        LOGGER.info("Удаление заказа: {}", uuid);
+    @Override
+    public OrderResponse partialUpdateOrder(String uuid, OrderRequest request) {
+        return mapToResponse(orderService.partialUpdateOrder(uuid, request));
+    }
+
+    @Override
+    public void deleteOrder(String uuid) {
         orderService.deleteOrder(uuid);
     }
 

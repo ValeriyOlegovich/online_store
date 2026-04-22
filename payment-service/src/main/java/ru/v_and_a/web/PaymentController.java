@@ -4,15 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.v_and_a.application.PaymentService;
+import ru.v_and_a.web.api.PaymentApi;
 import ru.v_and_a.web.dto.PaymentRequest;
 import ru.v_and_a.web.dto.PaymentResponse;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
-public class PaymentController {
+public class PaymentController implements PaymentApi {
 
     private final PaymentService paymentService;
 
