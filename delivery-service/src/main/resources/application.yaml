@@ -1,0 +1,33 @@
+# \u041F\u043E\u0440\u0442 \u0441\u0435\u0440\u0432\u0435\u0440\u0430
+server:
+  port: 8083
+
+# \u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u044F
+spring:
+  application:
+    name: delivery-service
+
+  # \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430 H2
+  datasource:
+    url: jdbc:h2:mem:deliverydb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # \u0412\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0441\u043E\u043B\u0438 H2
+  h2:
+    console:
+      enabled: true
+
+  # \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430 Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+# \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430 \u0434\u043B\u044F OpenAPI (Swagger)
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /

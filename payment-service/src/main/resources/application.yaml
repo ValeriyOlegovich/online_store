@@ -1,19 +1,36 @@
-# ????????? ?????
-server.port=8082
-spring.application.name=payment-service
+# Порт сервера
+server:
+  port: 8082
 
-# ????????? H2
-spring.datasource.url=jdbc:h2:mem:paymentdb
-spring.datasource.driver-class-name=org.h2.Driver
-spring.datasource.username=sa
-spring.datasource.password=
+# Название приложения
+spring:
+  application:
+    name: payment-service
 
-# ????????? ??????? H2
-spring.h2.console.enabled=true
+  # Настройка подключения к базе данных H2
+  datasource:
+    url: jdbc:h2:mem:paymentdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
 
-# ???????????? ? ???????? ??????
-spring.jpa.hibernate.ddl-auto=create-drop
-spring.jpa.show-sql=true
+  # Включение веб-консоли H2
+  h2:
+    console:
+      enabled: true
+
+  # Настройка JPA и Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+# Настройка OpenAPI (Swagger)
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /
 
 # ????????? ??? openApi(swagger)
 springdoc.api-docs.path=/api-docs
