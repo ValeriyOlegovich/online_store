@@ -29,7 +29,6 @@ public class DeliveryServiceIml implements DeliveryService {
     private final DeliveryRepository deliveryRepository;
 
     @Transactional
-    @CircuitBreaker(name = "delivery", fallbackMethod = "deliveryFallback")
     @Override
     public String create(DeliveryCommand deliveryCommand) {
         Delivery delivery = new Delivery(
@@ -40,6 +39,9 @@ public class DeliveryServiceIml implements DeliveryService {
                 toTimeWindow(deliveryCommand.timeWindow()),
                 deliveryCommand.trackingNumber()
         );
+        if (true) {
+            throw new RuntimeException("Simulated failure for CircuitBreaker test");
+        }
         deliveryRepository.save(delivery);
         return "Заказ создан";
     }
@@ -127,12 +129,6 @@ public class DeliveryServiceIml implements DeliveryService {
                 ),
                 delivery.getTrackingNumber()
         );
-    }
-
-    public String deliveryFallback(Throwable t) {
-        log.info("Сервис доставки временно недоступен: " + t.getMessage());
-
-        return "Сервис доставки временно недоступен: ";
     }
 
 }
