@@ -1,8 +1,7 @@
 package ru.v_and_a.web;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,8 +13,8 @@ import ru.v_and_a.web.dto.OrderResponse;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController implements OrderApi {
-    private static final Logger LOGGER = LogManager.getLogger(OrderController.class);
 
     private final OrderService orderService;
 
@@ -26,7 +25,7 @@ public class OrderController implements OrderApi {
 
     @Override
     public Page<OrderResponse> getAll(Pageable pageable) {
-        LOGGER.info("Вызов OrderController.getAll");
+        log.info("Вызов OrderController.getAll");
         return orderService.getAll(pageable).map(this::mapToResponse);
     }
 

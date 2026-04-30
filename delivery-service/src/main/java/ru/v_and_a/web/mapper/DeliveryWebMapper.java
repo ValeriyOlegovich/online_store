@@ -29,7 +29,8 @@ public class DeliveryWebMapper {
                 toDeliveryAddressResponse(deliveryDetails.deliveryAddress()),
                 deliveryDetails.deliveryDate(),
                 toTimeWindowResponse(deliveryDetails.timeWindow()),
-                deliveryDetails.trackingNumber()
+                deliveryDetails.trackingNumber(),
+                null
         );
     }
 

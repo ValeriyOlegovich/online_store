@@ -4,6 +4,9 @@ import java.util.List;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +23,15 @@ import ru.v_and_a.domain.repository.DeliveryRepository;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class DeliveryApplicationService {
+@Slf4j
+public class DeliveryServiceIml implements DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
 
     @Transactional
-    @CircuitBreaker(name = "deliveryServiceCircuitBreaker")
-    public DeliveryDetails create(DeliveryCommand deliveryCommand) {
+    @CircuitBreaker(name = "delivery", fallbackMethod = "deliveryFallback")
+    @Override
+    public String create(DeliveryCommand deliveryCommand) {
         Delivery delivery = new Delivery(
                 deliveryCommand.orderId(),
                 deliveryCommand.status(),
@@ -35,10 +40,12 @@ public class DeliveryApplicationService {
                 toTimeWindow(deliveryCommand.timeWindow()),
                 deliveryCommand.trackingNumber()
         );
-        return toDeliveryDetails(deliveryRepository.save(delivery));
+        deliveryRepository.save(delivery);
+        return "Заказ создан";
     }
 
     @CircuitBreaker(name = "deliveryServiceCircuitBreaker")
+    @Override
     public List<DeliveryDetails> getAll(Pageable pageable) {
         return deliveryRepository.findAll(pageable)
                 .stream()
@@ -47,12 +54,14 @@ public class DeliveryApplicationService {
     }
 
     @CircuitBreaker(name = "deliveryServiceCircuitBreaker")
+    @Override
     public DeliveryDetails getById(Long deliveryId) {
         return toDeliveryDetails(getDelivery(deliveryId));
     }
 
     @Transactional
     @CircuitBreaker(name = "deliveryServiceCircuitBreaker")
+    @Override
     public DeliveryDetails update(Long deliveryId, DeliveryCommand deliveryCommand) {
         Delivery delivery = getDelivery(deliveryId);
         delivery.update(
@@ -68,6 +77,7 @@ public class DeliveryApplicationService {
 
     @Transactional
     @CircuitBreaker(name = "deliveryServiceCircuitBreaker")
+    @Override
     public void delete(Long deliveryId) {
         if (!deliveryRepository.existsById(deliveryId)) {
             throw new ResourceNotFoundException("Delivery with id " + deliveryId + " was not found");
@@ -118,4 +128,11 @@ public class DeliveryApplicationService {
                 delivery.getTrackingNumber()
         );
     }
+
+    public String deliveryFallback(Throwable t) {
+        log.info("Сервис доставки временно недоступен: " + t.getMessage());
+
+        return "Сервис доставки временно недоступен: ";
+    }
+
 }

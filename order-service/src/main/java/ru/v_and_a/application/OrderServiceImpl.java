@@ -1,6 +1,7 @@
 package ru.v_and_a.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -22,19 +24,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public String createOrder(OrderRequest request) {
+        log.info("Вызов OrderServiceImpl.createOrder :", request);
         String uuid = UUID.randomUUID().toString();
         Order order = new Order();
         order.setUuid(uuid);
         order.setStatus(OrderStatus.CREATED);
         order.setTotalAmount(request.getTotalAmount());
 
-        orderRepository.save(order);
         var paymentRequest = new PaymentRequest();
         paymentRequest.setOrderId(order.getUuid());
         paymentRequest.setAmount(order.getTotalAmount());
         paymentRequest.setCurrency("RUB");
         String idempotencyKey = order.getUserId() + "-" + order.hashCode();
         paymentClient.createPayment(idempotencyKey, paymentRequest);
+        orderRepository.save(order);
 
         return uuid;
     }

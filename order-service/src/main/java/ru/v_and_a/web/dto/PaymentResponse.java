@@ -1,5 +1,7 @@
 package ru.v_and_a.web.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,7 +9,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class PaymentResponse {
 
     private Long id;
@@ -17,4 +21,5 @@ public class PaymentResponse {
     private BigDecimal amount;
     private String currency;
     private LocalDateTime createdAt;
+    private String message;
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public interface PaymentService {
-    PaymentResponse createPayment(PaymentRequest request);
+    String createPayment(PaymentRequest request);
     List<PaymentResponse> getAll(Pageable pageable);
     PaymentResponse getPaymentById(Long id);
     PaymentResponse updatePayment(Long id, PaymentRequest request);

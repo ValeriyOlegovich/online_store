@@ -15,4 +15,5 @@ public class OrderResponse {
     private String deliveryStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String message;
 }

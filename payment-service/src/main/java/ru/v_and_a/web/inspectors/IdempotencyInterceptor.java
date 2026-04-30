@@ -4,8 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -18,9 +17,8 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class IdempotencyInterceptor implements HandlerInterceptor {
-
-    private static final Logger LOGGER = LogManager.getLogger(IdempotencyInterceptor.class);
 
     private final IdempotencyKeyRepository idempotencyKeyRepository;
 
@@ -33,9 +31,9 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
 
         String key = request.getHeader("X-Idempotency-Key");
         if (key == null || key.isBlank()) {
-            LOGGER.warn("Отсутствует заголовок Idempotency-Key");
+            log.warn("Отсутствует заголовок X-Idempotency-Key");
             response.setStatus(400);
-            response.getWriter().write("{\"error\": \"Idempotency-Key header is required\"}");
+            response.getWriter().write("{\"error\": \"X-Idempotency-Key header is required\"}");
             return false;
         }
 
@@ -43,9 +41,8 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
         Optional<IdempotencyKey> existing = idempotencyKeyRepository.findByKey(key);
 
         if (existing.isPresent()) {
-            LOGGER.info("Повторный запрос с Idempotency-Key: {}. Возвращаем 200.", key);
+            log.info("Повторный запрос с Idempotency-Key: {}. Возвращаем 200.", key);
             response.setStatus(200);
-            response.getWriter().write(existing.get().getResponsePayload());
             return false;
         }
 
@@ -60,7 +57,7 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
         request.setAttribute("wrappedResponse", wrappedResponse);
 
-        LOGGER.info("Idempotency-Key {} сохранён.", key);
+        log.info("Idempotency-Key {} сохранён.", key);
         return true; // ✅ продолжаем обработку
     }
 

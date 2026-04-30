@@ -26,4 +26,6 @@ public class DeliveryResponse {
     private TimeWindowResponse timeWindow;
     @Schema(description = "Трек-номер", example = "TRK-10002")
     private String trackingNumber;
+    @Schema(description = "сообщение", example = "Доставка успешно оформлена")
+    private String message;
 }

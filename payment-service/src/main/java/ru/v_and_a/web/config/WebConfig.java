@@ -1,4 +1,4 @@
-package ru.v_and_a.web;
+package ru.v_and_a.web.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
