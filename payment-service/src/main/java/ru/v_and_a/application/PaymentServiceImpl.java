@@ -20,7 +20,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
 
     @Override
-    public String createPayment(PaymentRequest request) {
+    public PaymentResponse createPayment(PaymentRequest request) {
         Payment payment = new Payment();
         payment.setOrderId(request.getOrderId());
         payment.setAmount(request.getAmount());
@@ -28,7 +28,9 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(PaymentStatus.PENDING);
 
         Payment savedPayment = paymentRepository.save(payment);
-        return "заказ передан на оплату";
+        return PaymentResponse.builder()
+                .message("заказ передан на оплату")
+                .build();
     }
 
     @Override
