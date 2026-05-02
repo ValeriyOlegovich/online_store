@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.v_and_a.domain.model.Order;
 import ru.v_and_a.web.dto.OrderRequest;
+import ru.v_and_a.web.dto.OrderResponse;
 
 public interface OrderService {
 
@@ -13,7 +14,7 @@ public interface OrderService {
      * @param request данные заказа
      * @return UUID созданного заказа
      */
-    String createOrder(OrderRequest request);
+    OrderResponse createOrder(OrderRequest request);
 
     /**
      * Возвращает заказ по его UUID.

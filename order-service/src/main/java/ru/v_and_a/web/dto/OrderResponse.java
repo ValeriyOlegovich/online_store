@@ -11,9 +11,5 @@ import java.time.LocalDateTime;
 public class OrderResponse {
     private String uuid;
     private OrderStatus status;
-    private String paymentStatus;
-    private String deliveryStatus;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private String message;
 }
