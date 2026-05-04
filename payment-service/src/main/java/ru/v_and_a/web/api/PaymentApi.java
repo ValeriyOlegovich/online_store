@@ -24,13 +24,13 @@ public interface PaymentApi {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Платёж успешно создан",
-                            content = @Content(schema = @Schema(implementation = String.class))
+                            content = @Content(schema = @Schema(implementation = PaymentResponse.class))
                     ),
                     @ApiResponse(responseCode = "400", description = "Некорректные данные")
             }
     )
     @PostMapping
-    String create(@RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader,
+    PaymentResponse create(@RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader,
                            @RequestBody PaymentRequest paymentRequest);
 
     @Operation(

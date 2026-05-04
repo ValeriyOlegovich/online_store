@@ -19,7 +19,7 @@ public class OrderController implements OrderApi {
     private final OrderService orderService;
 
     @Override
-    public String createOrder(OrderRequest request) {
+    public OrderResponse createOrder(OrderRequest request) {
         return orderService.createOrder(request);
     }
 
@@ -55,8 +55,6 @@ public class OrderController implements OrderApi {
         return OrderResponse.builder()
                 .uuid(order.getUuid())
                 .status(order.getStatus())
-                .createdAt(order.getCreatedAt())
-                .updatedAt(order.getUpdatedAt())
                 .build();
     }
 }

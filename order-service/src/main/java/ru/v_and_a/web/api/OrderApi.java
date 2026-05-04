@@ -31,7 +31,7 @@ public interface OrderApi {
             }
     )
     @PostMapping
-    String createOrder(@RequestBody OrderRequest request);
+    OrderResponse createOrder(@RequestBody OrderRequest request);
 
     @Operation(
             summary = "Получить все заказы",

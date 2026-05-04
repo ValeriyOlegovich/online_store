@@ -10,6 +10,7 @@ import ru.v_and_a.domain.model.OrderStatus;
 import ru.v_and_a.domain.repository.OrderRepository;
 import ru.v_and_a.web.client.PaymentClient;
 import ru.v_and_a.web.dto.OrderRequest;
+import ru.v_and_a.web.dto.OrderResponse;
 import ru.v_and_a.web.dto.PaymentRequest;
 
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentClient paymentClient;
 
     @Override
-    public String createOrder(OrderRequest request) {
+    public OrderResponse createOrder(OrderRequest request) {
         log.info("Вызов OrderServiceImpl.createOrder :", request);
         String uuid = UUID.randomUUID().toString();
         Order order = new Order();
@@ -37,11 +38,13 @@ public class OrderServiceImpl implements OrderService {
         paymentRequest.setCurrency("RUB");
         String idempotencyKey = order.getUserId() + "-" + order.hashCode();
 
-        paymentClient.createPayment(idempotencyKey, paymentRequest);
-
+       var response = paymentClient.createPayment(idempotencyKey, paymentRequest);
         orderRepository.save(order);
 
-        return uuid;
+        return OrderResponse.builder()
+                .message(response.getMessage())
+                .uuid(uuid)
+                .build();
     }
 
     @Override
