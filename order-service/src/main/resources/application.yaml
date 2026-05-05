@@ -35,6 +35,10 @@ springdoc:
 feign:
   resilience4j:
     enabled: true
+  client:
+    config:
+      paymentClient:
+        readTimeout: 5000
 
 # \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 payment-service
 payment:
