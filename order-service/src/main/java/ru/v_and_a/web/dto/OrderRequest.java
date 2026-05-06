@@ -11,8 +11,6 @@ import java.util.List;
 public class OrderRequest {
     private String orderUuid;
     private List<Item> items;
-    private String currency;
     private BigDecimal totalAmount;
-    private String notes;
     private OrderStatus status;
 }
