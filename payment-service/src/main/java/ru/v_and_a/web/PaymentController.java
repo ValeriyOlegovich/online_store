@@ -20,7 +20,7 @@ public class PaymentController implements PaymentApi {
      * Создаёт новый платёж
      */
     @PostMapping
-    public String create(
+    public PaymentResponse create(
             @RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader,
             @RequestBody PaymentRequest paymentRequest) {
         return paymentService.createPayment(paymentRequest);

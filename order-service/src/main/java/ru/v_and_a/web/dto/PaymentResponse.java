@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -20,6 +20,6 @@ public class PaymentResponse {
     private String method;
     private BigDecimal amount;
     private String currency;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
     private String message;
 }

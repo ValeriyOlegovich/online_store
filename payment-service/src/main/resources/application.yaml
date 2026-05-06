@@ -31,7 +31,3 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /
-
-# ????????? ??? openApi(swagger)
-springdoc.api-docs.path=/api-docs
-springdoc.swagger-ui.path=/
