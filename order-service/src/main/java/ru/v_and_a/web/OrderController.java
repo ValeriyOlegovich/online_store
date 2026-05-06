@@ -57,4 +57,9 @@ public class OrderController implements OrderApi {
                 .status(order.getStatus())
                 .build();
     }
+
+    @Override
+    public OrderResponse cancelOrder(String OrderUuid) {
+        return orderService.cancel(OrderUuid);
+    }
 }

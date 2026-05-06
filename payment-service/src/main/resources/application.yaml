@@ -32,6 +32,13 @@ springdoc:
   swagger-ui:
     path: /
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+
 
 # Настройка Resilience4j Circuit Breaker
 resilience4j:

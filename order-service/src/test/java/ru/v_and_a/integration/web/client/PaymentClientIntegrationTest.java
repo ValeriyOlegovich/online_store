@@ -62,7 +62,7 @@ public class PaymentClientIntegrationTest {
     }
 
     @Test
-    @DisplayName("Должен успешно создать платёж при 200 от сервиса")
+    @DisplayName("Клиент Должен успешно создать платёж при 200 от сервиса")
     void shouldCreatePaymentSuccessfully() {
         stubFor(post("/api/v1/payments")
                 .willReturn(aResponse()
@@ -141,7 +141,7 @@ public class PaymentClientIntegrationTest {
 
     @SneakyThrows
     @Test
-    @DisplayName("Должен отклонять вызовы при превышении maxConcurrentCalls")
+    @DisplayName("Bulkhead Должен отклонять вызовы при превышении maxConcurrentCalls")
     void shouldRejectWhenBulkheadIsFull() throws InterruptedException {
         // Делаем долгий ответ, чтобы вызовы "зависли"
         stubFor(post("/api/v1/payments")
