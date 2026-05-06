@@ -11,6 +11,7 @@ import ru.v_and_a.web.dto.*;
 public class DeliveryWebMapper {
 
     public DeliveryCommand toDeliveryCommand(DeliveryRequest deliveryRequest) {
+
         return new DeliveryCommand(
                 deliveryRequest.getOrderId(),
                 deliveryRequest.getStatus(),
