@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -22,8 +23,13 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private Long userId;
-    private String paymentMethod;
     private BigDecimal totalAmount;
+    @ElementCollection
+    @CollectionTable(
+            name = "order_items",
+            joinColumns = @JoinColumn(name = "order_uuid")
+    )
+    private List<Item> items;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
