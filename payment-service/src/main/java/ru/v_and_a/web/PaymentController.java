@@ -22,7 +22,7 @@ public class PaymentController implements PaymentApi {
      */
     @PostMapping
     @CircuitBreaker(name = "payment", fallbackMethod = "createFallback")
-    public String create(
+    public PaymentResponse create(
             @RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader,
             @RequestBody PaymentRequest paymentRequest) {
         return paymentService.createPayment(paymentRequest);

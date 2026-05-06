@@ -1,7 +1,7 @@
 package ru.v_and_a.web.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -29,5 +29,5 @@ public class PaymentResponse {
     @Schema(description = "Валюта платежа")
     private String currency;
     @Schema(description = "Дата и время создания платежа")
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 }

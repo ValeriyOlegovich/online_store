@@ -22,7 +22,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public String createPayment(PaymentRequest request) {
         Payment payment = new Payment();
-        payment.setOrderId(request.getOrderId());
+        payment.setOrderUuid(request.getOrderId());
         payment.setAmount(request.getAmount());
         payment.setCurrency(request.getCurrency());
         payment.setStatus(PaymentStatus.PENDING);
@@ -50,7 +50,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Платёж с ID " + id + " не найден"));
 
-        payment.setOrderId(request.getOrderId());
+        payment.setOrderUuid(request.getOrderId());
         payment.setAmount(request.getAmount());
         payment.setCurrency(request.getCurrency());
         payment.setStatus(request.getStatus());
@@ -65,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("Платёж с ID " + id + " не найден"));
 
         if (request.getOrderId() != null) {
-            payment.setOrderId(request.getOrderId());
+            payment.setOrderUuid(request.getOrderId());
         }
         if (request.getAmount() != null) {
             payment.setAmount(request.getAmount());
@@ -92,7 +92,7 @@ public class PaymentServiceImpl implements PaymentService {
     private PaymentResponse mapToResponse(Payment payment) {
         return PaymentResponse.builder()
                 .id(payment.getId())
-                .orderId(payment.getOrderId())
+                .orderId(payment.getOrderUuid())
                 .amount(payment.getAmount())
                 .currency(payment.getCurrency())
                 .status(payment.getStatus())
