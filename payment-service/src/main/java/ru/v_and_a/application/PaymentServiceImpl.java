@@ -3,6 +3,7 @@ package ru.v_and_a.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.v_and_a.domain.model.Payment;
 import ru.v_and_a.domain.model.PaymentStatus;
 import ru.v_and_a.domain.repository.PaymentRepository;
@@ -27,7 +28,9 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(PaymentStatus.PENDING);
 
         Payment savedPayment = paymentRepository.save(payment);
-        return mapToResponse(savedPayment);
+        return PaymentResponse.builder()
+                .message("заказ передан на оплату")
+                .build();
     }
 
     @Override
@@ -86,6 +89,17 @@ public class PaymentServiceImpl implements PaymentService {
             throw new IllegalArgumentException("Платёж с ID " + id + " не существует");
         }
         paymentRepository.deleteById(id);
+    }
+
+    @Override
+    public Payment getPaymentByOrderUuid(String orderUuid) {
+        return paymentRepository.getPaymentByOrderUuid(orderUuid);
+    }
+
+    @Override
+    @Transactional
+    public int cancel(Long paymentId) {
+        return paymentRepository.cancelPayment(paymentId);
     }
 
     private PaymentResponse mapToResponse(Payment payment) {

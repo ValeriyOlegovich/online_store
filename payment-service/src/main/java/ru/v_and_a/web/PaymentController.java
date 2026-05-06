@@ -1,5 +1,7 @@
 package ru.v_and_a.web;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +22,16 @@ public class PaymentController implements PaymentApi {
      * Создаёт новый платёж
      */
     @PostMapping
+    @CircuitBreaker(name = "payment", fallbackMethod = "createFallback")
+    @RateLimiter(name = "createLimiter")
     public PaymentResponse create(
             @RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader,
             @RequestBody PaymentRequest paymentRequest) {
         return paymentService.createPayment(paymentRequest);
+    }
+
+    private String createFallback(String idempotencyKeyHeader, PaymentRequest paymentRequest, Throwable throwable) {
+        return "fallback-order-id-" + paymentRequest.getOrderId();
     }
 
     /**

@@ -32,7 +32,74 @@ springdoc:
   swagger-ui:
     path: /
 
+feign:
+  resilience4j:
+    enabled: true
+  client:
+    config:
+      paymentClient:
+        readTimeout: 5000
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+
 # \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 payment-service
 payment:
   service:
     url: http://localhost:8082
+
+# Настройка Resilience4j
+resilience4j:
+
+  retry:
+    instances:
+      paymentClient:
+        maxAttempts: 3
+        waitDuration: 2s
+        retryExceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - feign.RetryableException
+          - feign.FeignException
+
+  circuitbreaker:
+    instances:
+      paymentClient:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        slidingWindowSize: 10
+
+  ratelimiter:
+    instances:
+      paymentClient:
+        limitForPeriod: 3          # 10 запросов за период
+        limitRefreshPeriod: 10s      # период = 1 секунда
+        timeoutDuration: 0s
+
+  bulkhead:
+    instances:
+      paymentClient:
+        maxConcurrentCalls: 2 # Максимальное число параллельных вызовов, разрешенных одновременно
+        maxWaitDuration: 0s # Время ожидания, если все слоты заняты;
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,metrics
+logging:
+  level:
+    io.github.resilience4j.retry: DEBUG
+    io.github.resilience4j.ratelimiter: DEBUG
+    io.github.resilience4j.bulkhead: DEBUG
+    ru.v_and_a: DEBUG

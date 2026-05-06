@@ -1,6 +1,8 @@
 package ru.v_and_a.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.v_and_a.domain.model.Order;
 
@@ -24,4 +26,9 @@ public interface OrderRepository extends JpaRepository<Order, String> {
      * @return true, если заказ существует
      */
     boolean existsById(String uuid);
+
+    // Метод для отмены заказов
+    @Modifying
+    @Query("UPDATE Order o SET o.status = ru.v_and_a.domain.model.OrderStatus.CANCELLED WHERE o.uuid = :orderUuid")
+    void cancelOrder(String orderUuid);
 }

@@ -2,17 +2,22 @@ package ru.v_and_a.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.v_and_a.domain.model.Order;
 import ru.v_and_a.domain.model.OrderStatus;
 import ru.v_and_a.domain.repository.OrderRepository;
+import ru.v_and_a.rabbitMQ.config.RabbitConfig;
+import ru.v_and_a.rabbitMQ.events.OrderCancelledEvent;
 import ru.v_and_a.web.client.PaymentClient;
 import ru.v_and_a.web.dto.OrderRequest;
 import ru.v_and_a.web.dto.OrderResponse;
 import ru.v_and_a.web.dto.PaymentRequest;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
@@ -22,6 +27,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final PaymentClient paymentClient;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public OrderResponse createOrder(OrderRequest request) {
@@ -37,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
         paymentRequest.setAmount(order.getTotalAmount());
         paymentRequest.setCurrency("RUB");
         String idempotencyKey = order.getUserId() + "-" + order.hashCode();
+
        var response = paymentClient.createPayment(idempotencyKey, paymentRequest);
         orderRepository.save(order);
 
@@ -62,10 +69,11 @@ public class OrderServiceImpl implements OrderService {
         Order existingOrder = orderRepository.findById(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("Заказ с UUID " + uuid + " не найден"));
 
-        // Обновляем поля (пример)
-        // existingOrder.setCustomerId(request.getCustomerId());
+        existingOrder.setTotalAmount(request.getTotalAmount());
+        existingOrder.setItems(request.getItems());
 
         orderRepository.save(existingOrder);
+
         return existingOrder;
     }
 
@@ -88,5 +96,23 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Заказ с UUID " + uuid + " не найден");
         }
         orderRepository.deleteById(uuid);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse cancel(String orderUuid) {
+        var message = new OrderCancelledEvent(orderUuid, OffsetDateTime.now(), "user cancelled");
+
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.ORDER_EXCHANGE,
+                RabbitConfig.ORDER_CANCELLED_ROUTING_KEY,
+                message
+        );
+
+        orderRepository.cancelOrder(orderUuid);
+        return OrderResponse.builder()
+                .status(OrderStatus.CANCELLED)
+                .uuid(orderUuid)
+                .build();
     }
 }
