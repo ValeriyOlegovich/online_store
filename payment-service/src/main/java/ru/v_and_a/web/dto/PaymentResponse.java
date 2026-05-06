@@ -30,4 +30,6 @@ public class PaymentResponse {
     private String currency;
     @Schema(description = "Дата и время создания платежа")
     private OffsetDateTime createdAt;
+    @Schema(description = "Дополнительное сообщение: результат операции, ошибка или предупреждение")
+    private String message;
 }
