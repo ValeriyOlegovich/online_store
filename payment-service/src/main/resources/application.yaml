@@ -31,3 +31,28 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /
+
+
+# Настройка Resilience4j Circuit Breaker
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5  # ← важно: минимум 5 вызовов для анализа
+    instances:
+      payment:  # ← имя из @CircuitBreaker(name = "payment")
+        baseConfig: default
+
+logging:
+  level:
+    io.github.resilience4j: DEBUG
+    ru.v_and_a: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
