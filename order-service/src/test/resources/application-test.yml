@@ -1,0 +1,29 @@
+# Для интеграционных тестов
+resilience4j:
+  circuitbreaker:
+    instances:
+      paymentClient:
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 3
+        slidingWindowSize: 5
+        waitDurationInOpenState: 10s  # Быстрее для тестов
+
+  ratelimiter:
+    instances:
+      paymentClient:
+        limitForPeriod: 5
+        limitRefreshPeriod: 5s
+        timeoutDuration: 0s
+
+  bulkhead:
+    instances:
+      paymentClient:
+        maxConcurrentCalls: 3
+        maxWaitDuration: 1ms
+
+  retry:
+    instances:
+      paymentClient:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: false
