@@ -32,7 +32,40 @@ springdoc:
   swagger-ui:
     path: /
 
+feign:
+  resilience4j:
+    enabled: true
+
 # \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 payment-service
 payment:
   service:
     url: http://localhost:8082
+
+# Настройка Resilience4j Circuit Breaker
+resilience4j.retry:
+  instances:
+    paymentClient:
+      maxAttempts: 3
+      waitDuration: 2s
+      retryExceptions:
+        - java.net.ConnectException
+        - java.net.SocketTimeoutException
+        - feign.RetryableException
+        - feign.FeignException
+
+resilience4j.circuitbreaker:
+  instances:
+    paymentClient:
+      failureRateThreshold: 50
+      waitDurationInOpenState: 30s
+      slidingWindowSize: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,metrics
+logging:
+  level:
+    io.github.resilience4j: DEBUG
+    io.github.resilience4j.retry: DEBUG

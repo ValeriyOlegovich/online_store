@@ -2,6 +2,7 @@ package ru.v_and_a.web;
 
 import java.util.List;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,13 @@ public class DeliveryController implements DeliveryApi {
     private final DeliveryWebMapper deliveryWebMapper;
 
     @Override
+    @CircuitBreaker(name = "delivery", fallbackMethod = "createFallback")
     public String create(@RequestBody DeliveryRequest deliveryRequest) {
         return deliveryServiceIml.create(deliveryWebMapper.toDeliveryCommand(deliveryRequest));
+    }
+
+    private String createFallback(DeliveryRequest deliveryRequest, Throwable throwable) {
+        return "fallback-order-id-" + deliveryRequest.getOrderId();
     }
 
     @Override

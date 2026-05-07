@@ -37,6 +37,7 @@ public class OrderServiceImpl implements OrderService {
         paymentRequest.setAmount(order.getTotalAmount());
         paymentRequest.setCurrency("RUB");
         String idempotencyKey = order.getUserId() + "-" + order.hashCode();
+
        var response = paymentClient.createPayment(idempotencyKey, paymentRequest);
         orderRepository.save(order);
 

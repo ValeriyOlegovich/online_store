@@ -1,5 +1,6 @@
 package ru.v_and_a.application;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
 
     @Override
-    public PaymentResponse createPayment(PaymentRequest request) {
+    public String createPayment(PaymentRequest request) {
         Payment payment = new Payment();
         payment.setOrderUuid(request.getOrderId());
         payment.setAmount(request.getAmount());
@@ -27,7 +28,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(PaymentStatus.PENDING);
 
         Payment savedPayment = paymentRepository.save(payment);
-        return mapToResponse(savedPayment);
+        return "заказ передан на оплату";
     }
 
     @Override
