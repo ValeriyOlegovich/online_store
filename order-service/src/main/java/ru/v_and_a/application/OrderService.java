@@ -56,4 +56,6 @@ public interface OrderService {
      * @param uuid идентификатор заказа
      */
     void deleteOrder(String uuid);
+
+    OrderResponse cancel(String orderUuid);
 }

@@ -81,4 +81,33 @@ public interface OrderApi {
             @Parameter(description = "UUID заказа", example = "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8")
             @PathVariable("uuid") String uuid
     );
+
+    @Operation(
+            summary = "Отменить заказ",
+            description = "Изменяет статус заказа на CANCELLED. Допустимо только для заказов в статусах NEW или PAID.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Заказ успешно отменён",
+                            content = @Content(schema = @Schema(implementation = OrderResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Заказ не найден"
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Заказ нельзя отменить (уже отменён, доставлен и т.п.)"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Некорректный UUID"
+                    )
+            }
+    )
+    @PatchMapping("/{uuid}/cancel")
+    OrderResponse cancelOrder(
+            @Parameter(description = "UUID заказа", example = "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8")
+            @PathVariable("uuid") String uuid
+    );
 }
