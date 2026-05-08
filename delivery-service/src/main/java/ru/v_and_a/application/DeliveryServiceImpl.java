@@ -14,6 +14,8 @@ import ru.v_and_a.common.ResourceNotFoundException;
 import ru.v_and_a.domain.model.Delivery;
 import ru.v_and_a.domain.model.DeliveryStatus;
 import ru.v_and_a.domain.repository.DeliveryRepository;
+import ru.v_and_a.web.dto.DeliveryRequest;
+import ru.v_and_a.web.dto.DeliveryResponse;
 
 @Service
 @RequiredArgsConstructor
