@@ -66,6 +66,7 @@ feign:
 kafka:
   topic:
     delivery-created: delivery.created
+    order-create: order.create
 
 # \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 payment-service
 payment:

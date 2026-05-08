@@ -7,7 +7,6 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import ru.v_and_a.application.DeliveryService;
-import ru.v_and_a.kafka.events.DeliveryCreatedEvent;
 import ru.v_and_a.kafka.events.PaymentEvent;
 
 import java.time.Duration;
@@ -39,6 +38,18 @@ public class DeliveryEventConsumer {
             ack.nack(Duration.ofSeconds(1));
             throw e;
         }
+    }
+
+    /**
+     * Слушает события об создании заказа
+     */
+    @KafkaListener(
+            topics = "${kafka.topic.order-create}",
+            groupId = "delivery-group",
+            containerFactory = "stringKafkaListenerContainerFactory"
+    )
+    public void listenOrderCreateEvent(String event) {
+        log.info("Получено событие о создании заказа: orderUuid={}", event);
     }
 
     private void startDelivery(String orderUuid) {
