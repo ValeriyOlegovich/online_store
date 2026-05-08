@@ -15,17 +15,8 @@ public class DeliveryResponse {
     @Schema(description = "Идентификатор доставки", example = "1")
     private Long id;
     @Schema(description = "Идентификатор заказа", example = "1")
-    private Long orderId;
+    private String orderUuid;
     @Schema(description = "Статус доставки", example = "IN_TRANSIT")
     private DeliveryStatus status;
-    @Schema(description = "Адрес доставки")
-    private DeliveryAddressResponse deliveryAddress;
-    @Schema(description = "Дата доставки", example = "2026-03-21")
-    private LocalDate deliveryDate;
-    @Schema(description = "Временное окно доставки")
-    private TimeWindowResponse timeWindow;
     @Schema(description = "Трек-номер", example = "TRK-10002")
-    private String trackingNumber;
-    @Schema(description = "сообщение", example = "Доставка успешно оформлена")
-    private String message;
-}
+    private String trackingNumber;}

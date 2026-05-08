@@ -24,13 +24,13 @@ public interface DeliveryApi {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Доставка успешно создана",
-                            content = @Content(schema = @Schema(implementation = String.class))
+                            content = @Content(schema = @Schema(implementation = DeliveryResponse.class))
                     ),
                     @ApiResponse(responseCode = "400", description = "Некорректные данные запроса")
             }
     )
     @PostMapping
-    String create(@RequestBody DeliveryRequest deliveryRequest);
+    DeliveryResponse create(@RequestBody DeliveryRequest deliveryRequest);
 
     @Operation(
             summary = "Получить все доставки",

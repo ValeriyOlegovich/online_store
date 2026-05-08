@@ -3,25 +3,19 @@ package ru.v_and_a.web.dto;
 import java.time.LocalDate;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.v_and_a.domain.model.DeliveryStatus;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Запрос на создание или обновление доставки")
 public class DeliveryRequest {
 
     @Schema(description = "Идентификатор заказа", example = "1")
-    private Long orderId;
-    @Schema(description = "Статус доставки", example = "SCHEDULED")
+    private String orderUuid;
+    @Schema(description = "Статус доставки", example = "CREATED")
     private DeliveryStatus status;
-    @Schema(description = "Адрес доставки")
-    private DeliveryAddressRequest deliveryAddress;
-    @Schema(description = "Дата доставки", example = "2026-03-20")
-    private LocalDate deliveryDate;
-    @Schema(description = "Временное окно доставки")
-    private TimeWindowRequest timeWindow;
-    @Schema(description = "Трек-номер", example = "TRK-10001")
-    private String trackingNumber;
 }

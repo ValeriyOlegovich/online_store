@@ -6,51 +6,44 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-import ru.v_and_a.application.DeliveryServiceIml;
+import ru.v_and_a.application.DeliveryServiceImpl;
 import ru.v_and_a.web.api.DeliveryApi;
 import ru.v_and_a.web.dto.DeliveryRequest;
 import ru.v_and_a.web.dto.DeliveryResponse;
-import ru.v_and_a.web.mapper.DeliveryWebMapper;
 
 @RestController
 @RequiredArgsConstructor
 public class DeliveryController implements DeliveryApi {
 
-    private final DeliveryServiceIml deliveryServiceIml;
-    private final DeliveryWebMapper deliveryWebMapper;
+    private final DeliveryServiceImpl deliveryServiceImpl;
 
     @Override
     @CircuitBreaker(name = "delivery", fallbackMethod = "createFallback")
-    public String create(@RequestBody DeliveryRequest deliveryRequest) {
-        return deliveryServiceIml.create(deliveryWebMapper.toDeliveryCommand(deliveryRequest));
+    public DeliveryResponse create(@RequestBody DeliveryRequest deliveryRequest) {
+        return deliveryServiceImpl.create(deliveryRequest);
     }
 
     private String createFallback(DeliveryRequest deliveryRequest, Throwable throwable) {
-        return "fallback-order-id-" + deliveryRequest.getOrderId();
+        return "fallback-order-uuid-" + deliveryRequest.getOrderUuid();
     }
 
     @Override
     public List<DeliveryResponse> getAll(Pageable pageable) {
-        return deliveryServiceIml.getAll(pageable)
-                .stream()
-                .map(deliveryWebMapper::toDeliveryResponse)
-                .toList();
+        return deliveryServiceImpl.getAll(pageable);
     }
 
     @Override
     public DeliveryResponse getById(@PathVariable("id") Long deliveryId) {
-        return deliveryWebMapper.toDeliveryResponse(deliveryServiceIml.getById(deliveryId));
+        return deliveryServiceImpl.getById(deliveryId);
     }
 
     @Override
     public DeliveryResponse update(@PathVariable("id") Long deliveryId, @RequestBody DeliveryRequest deliveryRequest) {
-        return deliveryWebMapper.toDeliveryResponse(
-                deliveryServiceIml.update(deliveryId, deliveryWebMapper.toDeliveryCommand(deliveryRequest))
-        );
+        return deliveryServiceImpl.update(deliveryId, deliveryRequest);
     }
 
     @Override
     public void delete(@PathVariable("id") Long deliveryId) {
-        deliveryServiceIml.delete(deliveryId);
+        deliveryServiceImpl.delete(deliveryId);
     }
 }
