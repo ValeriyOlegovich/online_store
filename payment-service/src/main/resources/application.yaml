@@ -25,6 +25,26 @@ spring:
       ddl-auto: create-drop
     show-sql: true
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: payment-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    properties:
+      json:
+        trusted:
+          packages: ru.v_and_a.kafka.events
+kafka:
+  topic:
+    order-paid: order.paid
+
 # Настройка OpenAPI (Swagger)
 springdoc:
   api-docs:
@@ -38,7 +58,6 @@ springdoc:
     username: guest
     password: guest
     virtual-host: /
-
 
 # Настройка Resilience4j Circuit Breaker
 resilience4j:
