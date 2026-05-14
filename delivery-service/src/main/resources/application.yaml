@@ -36,6 +36,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: ru.v_and_a.kafka.events
+        spring.json.add.type.headers: true
 
 kafka:
   topic:

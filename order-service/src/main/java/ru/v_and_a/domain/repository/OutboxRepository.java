@@ -3,10 +3,12 @@ package ru.v_and_a.domain.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import ru.v_and_a.domain.model.OutboxEvent;
 
 import java.util.List;
 
+@Repository
 public interface OutboxRepository extends JpaRepository<OutboxEvent, String> {
     @Modifying(clearAutomatically = true)
     @Query(value="UPDATE outbox SET published=true WHERE id=?1",
