@@ -2,10 +2,13 @@ package ru.v_and_a.kafka;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.v_and_a.kafka.events.DeliveryCreatedEvent;
+
+import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
@@ -19,7 +22,19 @@ public class DeliveryEventProducer {
 
     public void sendDeliveryCreatedEvent(DeliveryCreatedEvent event) {
         log.info("Отправка события о создании доставки: {}", event);
-        kafkaTemplate.send(deliveryCreatedTopic, event.orderUuid(), event)
+        ProducerRecord<String, Object> record = new ProducerRecord<>(
+                deliveryCreatedTopic,
+                event.orderUuid(),
+                event
+        );
+
+        // Добавляем заголовок idempotency key
+        record.headers().add(
+                "X-Idempotency-Key",
+                ("delivery.created." + event.orderUuid()).getBytes(StandardCharsets.UTF_8)
+        );
+
+        kafkaTemplate.send(record)
                 .whenComplete((result, ex) -> {
                     if (ex == null) {
                         log.info("Событие отправлено в топик '{}': orderUuid={}", deliveryCreatedTopic, event.orderUuid());

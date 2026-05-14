@@ -32,7 +32,6 @@ public class DeliveryEventConsumer {
         try {
             startDelivery(event.orderUuid());
             ack.acknowledge();
-            log.info("Доставка создана для заказа: {}", event.orderUuid());
         } catch (Exception e) {
             log.error("Ошибка при создании доставки для заказа: {}", event.orderUuid(), e);
             ack.nack(Duration.ofSeconds(1));

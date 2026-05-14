@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class OutboxScheduler {
     private final OutboxRepository outboxRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${kafka.topic.order-create}")
     private String orderEventsTopic;
