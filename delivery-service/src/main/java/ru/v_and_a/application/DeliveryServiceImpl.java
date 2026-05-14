@@ -14,6 +14,8 @@ import ru.v_and_a.common.ResourceNotFoundException;
 import ru.v_and_a.domain.model.Delivery;
 import ru.v_and_a.domain.model.DeliveryStatus;
 import ru.v_and_a.domain.repository.DeliveryRepository;
+import ru.v_and_a.kafka.DeliveryEventProducer;
+import ru.v_and_a.kafka.events.DeliveryCreatedEvent;
 import ru.v_and_a.web.dto.DeliveryRequest;
 import ru.v_and_a.web.dto.DeliveryResponse;
 
@@ -71,6 +73,16 @@ public class DeliveryServiceImpl implements DeliveryService {
     private Delivery getDelivery(Long deliveryId) {
         return deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery with id " + deliveryId + " was not found"));
+    }
+
+    @Override
+    public void createDeliveryByOrderUuid(String orderUuid) {
+        var result = create(new DeliveryRequest(orderUuid, DeliveryStatus.CREATED));
+        DeliveryCreatedEvent event = new DeliveryCreatedEvent(
+                result.getOrderUuid(),
+                result.getTrackingNumber()
+        );
+        deliveryEventProducer.sendDeliveryCreatedEvent(event);
     }
 
 

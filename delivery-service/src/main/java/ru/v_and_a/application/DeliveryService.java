@@ -42,4 +42,6 @@ public interface DeliveryService {
      * @param deliveryId идентификатор доставки
      */
     void delete(Long deliveryId);
+
+    void createDeliveryByOrderUuid(String orderUuid);
 }

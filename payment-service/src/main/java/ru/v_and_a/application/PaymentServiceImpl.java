@@ -7,10 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.v_and_a.domain.model.Payment;
 import ru.v_and_a.domain.model.PaymentStatus;
 import ru.v_and_a.domain.repository.PaymentRepository;
+import ru.v_and_a.kafka.PaymentEventProducer;
+import ru.v_and_a.kafka.events.PaymentEvent;
 import ru.v_and_a.web.dto.PaymentRequest;
 import ru.v_and_a.web.dto.PaymentResponse;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final PaymentEventProducer paymentEventProducer;
 
     @Override
     public PaymentResponse createPayment(PaymentRequest request) {
@@ -98,8 +102,18 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public int cancel(Long paymentId) {
-        return paymentRepository.cancelPayment(paymentId);
+    public void cancel(Long paymentId) {
+        paymentRepository.cancelPayment(paymentId);
+    }
+
+    @Override
+    @Transactional
+    public PaymentResponse orderPayment(String orderUuid) {
+        paymentRepository.updateStatusByOrderUuid(orderUuid);
+        Payment payment = Optional.ofNullable(paymentRepository.getPaymentByOrderUuid(orderUuid))
+                .orElseThrow(() -> new IllegalStateException("Платёж не найден"));
+        paymentEventProducer.sendOrderPaidEvent(new PaymentEvent(orderUuid));
+        return mapToResponse(payment);
     }
 
     private PaymentResponse mapToResponse(Payment payment) {

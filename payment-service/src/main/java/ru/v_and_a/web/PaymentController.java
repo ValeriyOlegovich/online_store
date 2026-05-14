@@ -3,9 +3,13 @@ package ru.v_and_a.web;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.v_and_a.application.PaymentService;
+import ru.v_and_a.domain.model.PaymentStatus;
 import ru.v_and_a.web.api.PaymentApi;
 import ru.v_and_a.web.dto.PaymentRequest;
 import ru.v_and_a.web.dto.PaymentResponse;
@@ -14,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentController implements PaymentApi {
 
     private final PaymentService paymentService;
@@ -34,6 +39,38 @@ public class PaymentController implements PaymentApi {
         return "fallback-order-id-" + paymentRequest.getOrderId();
     }
 
+    /**
+     * Инициирует оплату заказа
+     * @param orderUuid UUID заказа
+     * @param idempotencyKeyHeader уникальный ключ идемпотентности
+     * @return PaymentResponse
+     */
+    @PostMapping("/{orderUuid}")
+    @CircuitBreaker(name = "payment", fallbackMethod = "payOrderFallback")
+    @RateLimiter(name = "createLimiter")
+    public ResponseEntity<PaymentResponse> pay(
+            @PathVariable String orderUuid,
+            @RequestHeader("X-Idempotency-Key") String idempotencyKeyHeader
+    ) {
+        PaymentResponse response = paymentService.orderPayment(orderUuid);
+        return ResponseEntity.ok(response);
+    }
+
+    private ResponseEntity<PaymentResponse> payOrderFallback(
+            String orderId,
+            String idempotencyKeyHeader,
+            Throwable throwable
+    ) {
+        log.warn("Fallback triggered for payOrder. Order: {}, Error: {}", orderId, throwable.getMessage());
+
+        PaymentResponse fallbackResponse = PaymentResponse.builder()
+                .status(PaymentStatus.FAILED)
+                .message("Оплата временно недоступна. Повторите позже.")
+                .orderId(orderId)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallbackResponse);
+    }
     /**
      * Возвращает список всех платежей
      */

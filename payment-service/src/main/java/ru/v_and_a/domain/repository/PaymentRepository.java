@@ -13,5 +13,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Modifying
     @Query("UPDATE Payment p SET p.status = PaymentStatus.CANCELLED WHERE p.id = :paymentId AND p.status != PaymentStatus.PAID")
-    int cancelPayment(Long paymentId);
+    void cancelPayment(Long paymentId);
+
+    @Modifying
+    @Query("UPDATE Payment p SET p.status = PaymentStatus.PAID WHERE p.orderUuid = :orderUuid AND p.status != PaymentStatus.CANCELLED")
+    void updateStatusByOrderUuid(String orderUuid);
 }

@@ -18,5 +18,6 @@ public interface PaymentService {
     PaymentResponse partialUpdatePayment(Long id, PaymentRequest request);
     void deletePayment(Long id);
     Payment getPaymentByOrderUuid(String orderUuid);
-    int cancel(Long id);
+    void cancel(Long id);
+    PaymentResponse orderPayment(String orderUuid);
 }

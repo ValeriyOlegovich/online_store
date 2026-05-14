@@ -53,6 +53,20 @@ feign:
           max-attempts: 3
           initial-interval: 1000ms
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: order-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: ru.v_and_a.kafka.events
+
+kafka:
+  topic:
+    delivery-created: delivery.created
+
 # \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 payment-service
 payment:
   service:
