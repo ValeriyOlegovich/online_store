@@ -1,5 +1,7 @@
 package ru.v_and_a.application;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -9,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.v_and_a.domain.model.Order;
 import ru.v_and_a.domain.model.OrderStatus;
+import ru.v_and_a.domain.model.OutboxEvent;
 import ru.v_and_a.domain.repository.OrderRepository;
+import ru.v_and_a.domain.repository.OutboxRepository;
 import ru.v_and_a.rabbitMQ.config.RabbitConfig;
 import ru.v_and_a.rabbitMQ.events.OrderCancelledEvent;
 import ru.v_and_a.web.client.PaymentClient;
@@ -28,8 +32,11 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final PaymentClient paymentClient;
     private final RabbitTemplate rabbitTemplate;
+    private final ObjectMapper objectMapper;
+    private final OutboxRepository outboxRepository;
 
     @Override
+    @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         log.info("Вызов OrderServiceImpl.createOrder :", request);
         String uuid = UUID.randomUUID().toString();
@@ -45,7 +52,15 @@ public class OrderServiceImpl implements OrderService {
         String idempotencyKey = order.getUserId() + "-" + order.hashCode();
 
        var response = paymentClient.createPayment(idempotencyKey, paymentRequest);
-        orderRepository.save(order);
+       orderRepository.save(order);
+        String eventPayload = null;
+        try {
+            eventPayload = objectMapper.writeValueAsString(order);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        OutboxEvent event = new OutboxEvent("OrderCreated", eventPayload);
+        outboxRepository.save(event);
 
         return OrderResponse.builder()
                 .message(response.getMessage())

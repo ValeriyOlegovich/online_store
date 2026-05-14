@@ -41,6 +41,7 @@ kafka:
   topic:
     order-paid: order.paid
     delivery-created: delivery.created
+    order-create: order.create
 
 # \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430 \u0434\u043B\u044F OpenAPI (Swagger)
 springdoc:
