@@ -29,6 +29,6 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     // Метод для отмены заказов
     @Modifying
-    @Query("UPDATE Order o SET o.status = ru.v_and_a.domain.model.OrderStatus.CANCELLED WHERE o.uuid = :orderUuid")
+    @Query("UPDATE Order o SET o.status = OrderStatus.REJECTED WHERE o.uuid = :orderUuid")
     void cancelOrder(String orderUuid);
 }

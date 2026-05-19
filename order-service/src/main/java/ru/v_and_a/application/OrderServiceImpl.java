@@ -1,27 +1,19 @@
 package ru.v_and_a.application;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.v_and_a.core.dto.enums.OrderStatus;
 import ru.v_and_a.domain.model.Order;
-import ru.v_and_a.domain.model.OrderStatus;
-import ru.v_and_a.domain.model.OutboxEvent;
 import ru.v_and_a.domain.repository.OrderRepository;
-import ru.v_and_a.domain.repository.OutboxRepository;
-import ru.v_and_a.rabbitMQ.config.RabbitConfig;
-import ru.v_and_a.rabbitMQ.events.OrderCancelledEvent;
-import ru.v_and_a.web.client.PaymentClient;
+import ru.v_and_a.saga.OrderProcessingSaga;
 import ru.v_and_a.web.dto.OrderRequest;
 import ru.v_and_a.web.dto.OrderResponse;
-import ru.v_and_a.web.dto.PaymentRequest;
 
-import java.time.OffsetDateTime;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -30,41 +22,33 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final PaymentClient paymentClient;
-    private final RabbitTemplate rabbitTemplate;
-    private final ObjectMapper objectMapper;
-    private final OutboxRepository outboxRepository;
+
+    private final OrderProcessingSaga orderProcessingSaga;
 
     @Override
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         log.info("Вызов OrderServiceImpl.createOrder :", request);
-        String uuid = UUID.randomUUID().toString();
+        String uuid;
+        if (request.getTotalAmount().equals(BigDecimal.ZERO)) {
+            uuid = "payment-error";
+        } else if (request.getTotalAmount().equals(BigDecimal.ONE)) {
+            uuid = "delivery-error";
+        } else {
+            uuid = UUID.randomUUID().toString();
+        }
         Order order = new Order();
         order.setUuid(uuid);
         order.setStatus(OrderStatus.CREATED);
         order.setTotalAmount(request.getTotalAmount());
 
-        var paymentRequest = new PaymentRequest();
-        paymentRequest.setOrderId(order.getUuid());
-        paymentRequest.setAmount(order.getTotalAmount());
-        paymentRequest.setCurrency("RUB");
-        String idempotencyKey = order.getUserId() + "-" + order.hashCode();
 
-       var response = paymentClient.createPayment(idempotencyKey, paymentRequest);
-       orderRepository.save(order);
-        String eventPayload = null;
-        try {
-            eventPayload = objectMapper.writeValueAsString(order);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        OutboxEvent event = new OutboxEvent("OrderCreated", eventPayload);
-        outboxRepository.save(event);
+        orderProcessingSaga.processOrder(uuid);
 
         return OrderResponse.builder()
-                .message(response.getMessage())
                 .uuid(uuid)
+                .status(OrderStatus.CREATED)
+                .message("Ваш заказ успешно создан")
                 .build();
     }
 
@@ -116,17 +100,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse cancel(String orderUuid) {
-        var message = new OrderCancelledEvent(orderUuid, OffsetDateTime.now(), "user cancelled");
-
-        rabbitTemplate.convertAndSend(
-                RabbitConfig.ORDER_EXCHANGE,
-                RabbitConfig.ORDER_CANCELLED_ROUTING_KEY,
-                message
-        );
-
         orderRepository.cancelOrder(orderUuid);
         return OrderResponse.builder()
-                .status(OrderStatus.CANCELLED)
+                .status(OrderStatus.REJECTED)
                 .uuid(orderUuid)
                 .build();
     }

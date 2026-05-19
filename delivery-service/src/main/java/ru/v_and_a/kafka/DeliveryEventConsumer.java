@@ -7,9 +7,9 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import ru.v_and_a.application.DeliveryService;
-import ru.v_and_a.kafka.events.PaymentEvent;
-
-import java.time.Duration;
+import ru.v_and_a.core.dto.commands.ScheduleDeliveryCommand;
+import ru.v_and_a.core.dto.enums.OrderStatus;
+import ru.v_and_a.core.dto.events.UpdateOrderStatusEvent;
 
 @Component
 @RequiredArgsConstructor
@@ -17,43 +17,24 @@ import java.time.Duration;
 public class DeliveryEventConsumer {
 
     private final DeliveryService deliveryService;
+    private final DeliveryEventProducer deliveryEventProducer;
 
     /**
      * Слушает события об оплате заказа
      */
     @KafkaListener(
-            topics = "${kafka.topic.order-paid}",
+            topics = "${kafka.topic.delivery-request}",
             groupId = "delivery-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void listenOrderPaidEvent(PaymentEvent event, @Nullable Acknowledgment ack) {
-        log.info("Получено событие об оплате заказа: orderUuid={}", event.orderUuid());
-
-        try {
-            startDelivery(event.orderUuid());
-            ack.acknowledge();
-            log.info("Доставка создана для заказа: {}", event.orderUuid());
-        } catch (Exception e) {
-            log.error("Ошибка при создании доставки для заказа: {}", event.orderUuid(), e);
-            ack.nack(Duration.ofSeconds(1));
-            throw e;
+    public void listenOrderPaidCommand(ScheduleDeliveryCommand command, @Nullable Acknowledgment ack) {
+        log.info("Получено событие об оплате заказа: command={}", command);
+        if (command.orderUuid().equals("delivery-error")) {
+            deliveryEventProducer.sendDeliveryCreatedEvent(new UpdateOrderStatusEvent(command.orderUuid(), OrderStatus.REJECTED, "Ошибка доставки"));
+        } else {
+            deliveryEventProducer.sendDeliveryCreatedEvent(new UpdateOrderStatusEvent(command.orderUuid(), OrderStatus.DELIVERED, null));
         }
-    }
+        ack.acknowledge();
 
-    /**
-     * Слушает события об создании заказа
-     */
-    @KafkaListener(
-            topics = "${kafka.topic.order-create}",
-            groupId = "delivery-group",
-            containerFactory = "stringKafkaListenerContainerFactory"
-    )
-    public void listenOrderCreateEvent(String event) {
-        log.info("Получено событие о создании заказа: orderUuid={}", event);
-    }
-
-    private void startDelivery(String orderUuid) {
-        deliveryService.createDeliveryByOrderUuid(orderUuid);
-        log.info("Доставка создана для заказа: {}", orderUuid);
     }
 }

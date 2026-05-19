@@ -2,9 +2,7 @@ package ru.v_and_a.web.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.v_and_a.domain.model.OrderStatus;
-
-import java.time.LocalDateTime;
+import ru.v_and_a.core.dto.enums.OrderStatus;
 
 @Data
 @Builder
