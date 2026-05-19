@@ -2,13 +2,10 @@ package ru.v_and_a.kafka;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import ru.v_and_a.kafka.events.DeliveryCreatedEvent;
-
-import java.nio.charset.StandardCharsets;
+import ru.v_and_a.core.dto.events.UpdateOrderStatusEvent;
 
 @Component
 @RequiredArgsConstructor
@@ -17,24 +14,12 @@ public class DeliveryEventProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${kafka.topic.delivery-created}")
+    @Value("${kafka.topic.order-creation-status}")
     private String deliveryCreatedTopic;
 
-    public void sendDeliveryCreatedEvent(DeliveryCreatedEvent event) {
+    public void sendDeliveryCreatedEvent(UpdateOrderStatusEvent event) {
         log.info("Отправка события о создании доставки: {}", event);
-        ProducerRecord<String, Object> record = new ProducerRecord<>(
-                deliveryCreatedTopic,
-                event.orderUuid(),
-                event
-        );
-
-        // Добавляем заголовок idempotency key
-        record.headers().add(
-                "X-Idempotency-Key",
-                ("delivery.created." + event.orderUuid()).getBytes(StandardCharsets.UTF_8)
-        );
-
-        kafkaTemplate.send(record)
+        kafkaTemplate.send(deliveryCreatedTopic, event.orderUuid(), event)
                 .whenComplete((result, ex) -> {
                     if (ex == null) {
                         log.info("Событие отправлено в топик '{}': orderUuid={}", deliveryCreatedTopic, event.orderUuid());

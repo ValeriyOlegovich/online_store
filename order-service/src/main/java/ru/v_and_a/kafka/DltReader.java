@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class DltReader {
 
     @KafkaListener(
-            topics = "delivery.created-dlt",
+            topics = "order.creation.status-dlt",
             groupId = "dlt-reader-group",
             containerFactory = "stringContainerFactory"
     )
@@ -25,6 +25,6 @@ public class DltReader {
         } else {
             log.error("Payload is null");
         }
-        // Не нужно ack'ать — это DLT, можно просто прочитать
+        acknowledgment.acknowledge();
     }
 }

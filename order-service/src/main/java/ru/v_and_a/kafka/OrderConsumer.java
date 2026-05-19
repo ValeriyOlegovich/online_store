@@ -1,40 +1,29 @@
 package ru.v_and_a.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
-import ru.v_and_a.application.ProcessedMessagesService;
-import ru.v_and_a.kafka.events.DeliveryCreatedEvent;
+import ru.v_and_a.core.dto.enums.OrderStatus;
+import ru.v_and_a.core.dto.events.UpdateOrderStatusEvent;
 
 @Component
 @Slf4j
-public class OrderConsumer extends IdempotentKafkaListener<DeliveryCreatedEvent> {
+public class OrderConsumer {
 
-    public OrderConsumer(ObjectMapper objectMapper, ProcessedMessagesService<DeliveryCreatedEvent> processedMessages) {
-        super(objectMapper, processedMessages);
-    }
-
-    @Override
     @KafkaListener(
-            topics = "${kafka.topic.delivery-created}",
+            topics = "${kafka.topic.order-creation-status}",
             groupId = "order-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void consumeMessage(ConsumerRecord<String, DeliveryCreatedEvent> consumerRecord, DeliveryCreatedEvent event, Acknowledgment acknowledgment) {
-        log.info("Получено событие: " + event);
-        try {
-            super.consumeMessage(consumerRecord, event, acknowledgment);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+    public void consumeUpdateOrderStatus(UpdateOrderStatusEvent event, @Nullable Acknowledgment acknowledgment) {
+        log.info("Получено событие изменения статуса заказа: " + event);
+        if (event.status().equals(OrderStatus.DELIVERED)) {
+            log.info("Заказ orderUuid: {} завершен! ", event.orderUuid());
+        } else if (event.status().equals(OrderStatus.REJECTED)) {
+            log.info("Заказ orderUuid: {} отменен!", event.orderUuid());
         }
-    }
-
-    @Override
-    public void processConsumedMessage(DeliveryCreatedEvent event) {
-        log.info("Получено событие: доставка создана для заказа {}", event.toString());
+        acknowledgment.acknowledge();
     }
 }

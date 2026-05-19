@@ -43,7 +43,7 @@ spring:
           packages: ru.v_and_a.kafka.events
 kafka:
   topic:
-    order-paid: order.paid
+    order-creation-status: order.creation.status
 
 # Настройка OpenAPI (Swagger)
 springdoc:

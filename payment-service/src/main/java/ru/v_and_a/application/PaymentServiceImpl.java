@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.v_and_a.core.dto.enums.OrderStatus;
 import ru.v_and_a.domain.model.Payment;
 import ru.v_and_a.domain.model.PaymentStatus;
 import ru.v_and_a.domain.repository.PaymentRepository;
 import ru.v_and_a.kafka.PaymentEventProducer;
-import ru.v_and_a.kafka.events.PaymentEvent;
 import ru.v_and_a.web.dto.PaymentRequest;
 import ru.v_and_a.web.dto.PaymentResponse;
 
@@ -112,7 +112,7 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.updateStatusByOrderUuid(orderUuid);
         Payment payment = Optional.ofNullable(paymentRepository.getPaymentByOrderUuid(orderUuid))
                 .orElseThrow(() -> new IllegalStateException("Платёж не найден"));
-        paymentEventProducer.sendOrderPaidEvent(new PaymentEvent(orderUuid));
+        paymentEventProducer.sendUpdateOrderStatusEvent(orderUuid, OrderStatus.PAID, null);
         return mapToResponse(payment);
     }
 
