@@ -43,6 +43,8 @@ spring:
           packages: ru.v_and_a.kafka.events
 kafka:
   topic:
+    payment-request: payment.request
+    payment-cancel: payment.cancel
     order-creation-status: order.creation.status
 
 # Настройка OpenAPI (Swagger)

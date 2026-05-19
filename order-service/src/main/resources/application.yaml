@@ -72,6 +72,9 @@ feign:
 kafka:
   topic:
     order-creation-status: order.creation.status
+    payment-request: payment.request
+    payment-cancel: payment.cancel
+    delivery-request: delivery.request
 
 # \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 payment-service
 payment:

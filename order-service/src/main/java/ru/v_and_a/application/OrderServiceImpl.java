@@ -6,10 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.v_and_a.core.dto.enums.OrderStatus;
 import ru.v_and_a.domain.model.Order;
-import ru.v_and_a.domain.model.OrderStatus;
 import ru.v_and_a.domain.repository.OrderRepository;
-import ru.v_and_a.kafka.OrderProducer;
+import ru.v_and_a.saga.OrderProcessingSaga;
 import ru.v_and_a.web.dto.OrderRequest;
 import ru.v_and_a.web.dto.OrderResponse;
 
@@ -23,7 +23,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
 
-    private final OrderProducer orderProducer;
+    private final OrderProcessingSaga orderProcessingSaga;
 
     @Override
     @Transactional
@@ -43,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(request.getTotalAmount());
 
 
-        orderProducer.sendOrderCreatedEvent(uuid, ru.v_and_a.core.dto.enums.OrderStatus.CREATED, null);
+        orderProcessingSaga.processOrder(uuid);
 
         return OrderResponse.builder()
                 .uuid(uuid)
@@ -102,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse cancel(String orderUuid) {
         orderRepository.cancelOrder(orderUuid);
         return OrderResponse.builder()
-                .status(OrderStatus.CANCELLED)
+                .status(OrderStatus.REJECTED)
                 .uuid(orderUuid)
                 .build();
     }

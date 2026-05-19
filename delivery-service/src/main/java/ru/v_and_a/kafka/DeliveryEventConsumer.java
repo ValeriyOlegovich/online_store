@@ -7,6 +7,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import ru.v_and_a.application.DeliveryService;
+import ru.v_and_a.core.dto.commands.ScheduleDeliveryCommand;
 import ru.v_and_a.core.dto.enums.OrderStatus;
 import ru.v_and_a.core.dto.events.UpdateOrderStatusEvent;
 
@@ -22,18 +23,16 @@ public class DeliveryEventConsumer {
      * Слушает события об оплате заказа
      */
     @KafkaListener(
-            topics = "${kafka.topic.order-creation-status}",
+            topics = "${kafka.topic.delivery-request}",
             groupId = "delivery-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void listenOrderPaidEvent(UpdateOrderStatusEvent event, @Nullable Acknowledgment ack) {
-        log.info("Получено событие об оплате заказа: event={}", event);
-        if (event.status().equals(OrderStatus.PAID)) {
-            if (event.orderUuid().equals("delivery-error")) {
-                deliveryEventProducer.sendDeliveryCreatedEvent(new UpdateOrderStatusEvent(event.orderUuid(), OrderStatus.REJECTED, "Ошибка доставки"));
-            } else {
-                deliveryEventProducer.sendDeliveryCreatedEvent(new UpdateOrderStatusEvent(event.orderUuid(), OrderStatus.DELIVERED, null));
-            }
+    public void listenOrderPaidCommand(ScheduleDeliveryCommand command, @Nullable Acknowledgment ack) {
+        log.info("Получено событие об оплате заказа: command={}", command);
+        if (command.orderUuid().equals("delivery-error")) {
+            deliveryEventProducer.sendDeliveryCreatedEvent(new UpdateOrderStatusEvent(command.orderUuid(), OrderStatus.REJECTED, "Ошибка доставки"));
+        } else {
+            deliveryEventProducer.sendDeliveryCreatedEvent(new UpdateOrderStatusEvent(command.orderUuid(), OrderStatus.DELIVERED, null));
         }
         ack.acknowledge();
 

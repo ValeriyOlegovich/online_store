@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.v_and_a.core.dto.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
