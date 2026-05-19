@@ -17,12 +17,12 @@ import java.util.List;
 @Slf4j
 public class OutboxScheduler {
     private final OutboxRepository outboxRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${kafka.topic.order-create}")
+    @Value("${kafka.topic.order-creation-status}")
     private String orderEventsTopic;
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 50000)
     @Transactional(readOnly = true)
     public void sendPendingEvents() {
         log.info("Проверка на наличие неотправленных событий в outbox");

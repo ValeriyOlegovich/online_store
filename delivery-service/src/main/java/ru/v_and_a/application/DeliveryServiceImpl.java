@@ -11,11 +11,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.v_and_a.common.ResourceNotFoundException;
+import ru.v_and_a.core.dto.enums.OrderStatus;
+import ru.v_and_a.core.dto.events.UpdateOrderStatusEvent;
 import ru.v_and_a.domain.model.Delivery;
 import ru.v_and_a.domain.model.DeliveryStatus;
 import ru.v_and_a.domain.repository.DeliveryRepository;
 import ru.v_and_a.kafka.DeliveryEventProducer;
-import ru.v_and_a.kafka.events.DeliveryCreatedEvent;
 import ru.v_and_a.web.dto.DeliveryRequest;
 import ru.v_and_a.web.dto.DeliveryResponse;
 
@@ -78,9 +79,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public void createDeliveryByOrderUuid(String orderUuid) {
         var result = create(new DeliveryRequest(orderUuid, DeliveryStatus.CREATED));
-        DeliveryCreatedEvent event = new DeliveryCreatedEvent(
+        UpdateOrderStatusEvent event = new UpdateOrderStatusEvent(
                 result.getOrderUuid(),
-                result.getTrackingNumber()
+                OrderStatus.CREATED,
+                null
         );
         deliveryEventProducer.sendDeliveryCreatedEvent(event);
     }

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import ru.v_and_a.kafka.events.DeliveryCreatedEvent;
+import ru.v_and_a.core.dto.events.UpdateOrderStatusEvent;
 
 @Component
 @RequiredArgsConstructor
@@ -14,10 +14,10 @@ public class DeliveryEventProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${kafka.topic.delivery-created}")
+    @Value("${kafka.topic.order-creation-status}")
     private String deliveryCreatedTopic;
 
-    public void sendDeliveryCreatedEvent(DeliveryCreatedEvent event) {
+    public void sendDeliveryCreatedEvent(UpdateOrderStatusEvent event) {
         log.info("Отправка события о создании доставки: {}", event);
         kafkaTemplate.send(deliveryCreatedTopic, event.orderUuid(), event)
                 .whenComplete((result, ex) -> {

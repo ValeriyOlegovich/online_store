@@ -29,19 +29,21 @@ spring:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
     consumer:
       group-id: delivery-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: ru.v_and_a.kafka.events
+        spring.json.trusted.packages: ru.v_and_a.core.*
+        spring.json.add.type.headers: true
 
 kafka:
   topic:
-    order-paid: order.paid
-    delivery-created: delivery.created
-    order-create: order.create
+    order-creation-status: order.creation.status
 
 # \u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0430 \u0434\u043B\u044F OpenAPI (Swagger)
 springdoc:
